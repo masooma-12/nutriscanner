@@ -1,0 +1,7 @@
+{
+  "name": "Copy of NutriScan by Luvable",
+  "description": "A warm, friendly, and intelligent AI health assistant to guide you in nutrition, hydration, and overall wellbeing. Scan food labels for instant insights and chat with our AI for personalized meal suggestions.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
