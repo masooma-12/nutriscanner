@@ -3,10 +3,18 @@ import { LUVABLE_SYSTEM_PROMPT } from '../constants';
 import { AnalysisResult, ChatMessage } from '../types';
 import { findProductByName } from './backendService';
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
-// Using 'gemini-2.5-flash' for both text and vision tasks provides a fast and powerful experience.
+// Gracefully handle missing API key, which is a common deployment issue.
+const apiKey = process.env.API_KEY;
+const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 const textModel = 'gemini-2.5-flash';
 const visionModel = 'gemini-2.5-flash';
+
+const checkAiService = () => {
+    if (!ai) {
+        // This user-friendly message will be shown in the UI if the API key is not configured on the server.
+        throw new Error("Luvable AI is currently unavailable due to a configuration issue. Please ensure the service is set up correctly. 💖");
+    }
+};
 
 const nutritionAnalysisSchema = {
   type: Type.OBJECT,
@@ -48,6 +56,8 @@ const nutritionAnalysisSchema = {
  * @returns A promise that resolves to the structured analysis result, including a verification flag.
  */
 export const analyzeFoodLabel = async (base64Image: string): Promise<AnalysisResult> => {
+  checkAiService(); // Check for service availability first.
+
   try {
     const imagePart = {
       inlineData: {
@@ -59,8 +69,8 @@ export const analyzeFoodLabel = async (base64Image: string): Promise<AnalysisRes
       text: `Analyze the nutrition label and product packaging in this image. Identify the product name. Extract key nutrients, identify allergens, and provide a friendly one-sentence summary. Follow the provided JSON schema precisely. Classify each nutrient's health impact accurately with the score.`,
     };
     
-    // Step 1: Real-time API call to Google's Gemini model for visual analysis.
-    const response = await ai.models.generateContent({
+    // Using non-null assertion `ai!` because checkAiService would have thrown otherwise.
+    const response = await ai!.models.generateContent({
       model: visionModel,
       contents: { parts: [imagePart, textPart] },
       config: {
@@ -72,7 +82,6 @@ export const analyzeFoodLabel = async (base64Image: string): Promise<AnalysisRes
     const jsonText = response.text.trim();
     const geminiData = JSON.parse(jsonText);
     
-    // Step 2: Cross-reference the identified product name with our backend FSSAI dataset.
     const fssaiProduct = await findProductByName(geminiData.productName);
 
     const finalResult: AnalysisResult = {
@@ -84,12 +93,16 @@ export const analyzeFoodLabel = async (base64Image: string): Promise<AnalysisRes
 
   } catch (error) {
     console.error("Error analyzing food label:", error);
+    // This catch is for API or parsing errors, not setup errors.
     throw new Error("Sorry, I couldn't read the label. Please try a clearer picture. 💖");
   }
 };
 
 export const getMealSuggestionStream = async (history: ChatMessage[], newUserMessage: string) => {
-  const chat = ai.chats.create({
+  checkAiService(); // Check for service availability first.
+
+  // Using non-null assertion `ai!` because checkAiService would have thrown otherwise.
+  const chat = ai!.chats.create({
     model: textModel,
     config: { systemInstruction: LUVABLE_SYSTEM_PROMPT },
     history: history.map(msg => ({

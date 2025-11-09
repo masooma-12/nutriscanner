@@ -41,9 +41,19 @@ const ChatView: React.FC = () => {
                     return newMessages;
                 });
             }
-        } catch (error) {
-            console.error(error);
-            setMessages(prev => [...prev.slice(0, -1), { role: 'model', content: "Oh dear, something went wrong. Please try again. 💖" }]);
+        } catch (e: any) {
+            console.error(e);
+            // This now displays the specific error message from the service layer,
+            // including the API key configuration error.
+            const errorMessage = e.message || "Oh dear, something went wrong. Please try again. 💖";
+            setMessages(prev => {
+                // Find the streaming placeholder and replace it with the error message.
+                if (prev.length > 0 && prev[prev.length - 1].content === '' && prev[prev.length-1].role === 'model') {
+                     return [...prev.slice(0, -1), { role: 'model', content: errorMessage }];
+                }
+                // Otherwise, just add the error message.
+                return [...prev, { role: 'model', content: errorMessage }];
+            });
         } finally {
             setIsLoading(false);
         }
