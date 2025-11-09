@@ -8,6 +8,13 @@ import ChatView from './views/ChatView';
 import HydrationView from './views/HydrationView';
 import DashboardView from './views/DashboardView';
 
+const Loader: React.FC = () => (
+    <div className="fixed inset-0 bg-white/70 backdrop-blur-md flex flex-col items-center justify-center z-[100]">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-pink-500"></div>
+        <p className="text-pink-500 text-lg font-semibold mt-4">Analyzing with Luvable... 💖</p>
+    </div>
+);
+
 export default function App() {
   const [activeView, setActiveView] = useState<AppView>(AppView.SCAN);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
@@ -37,7 +44,7 @@ export default function App() {
                   setAnalysisResult={setAnalysisResult} 
                   setIsLoading={setIsLoading} 
                   setError={setError} 
-                  isLoading={isLoading} />
+                />
               );
             case AppView.CHAT:
               return <ChatView />;
@@ -56,7 +63,8 @@ export default function App() {
   return (
     <div className="font-sans min-h-screen text-gray-800 relative">
       <AnimatedBackground />
-      <main className="pt-8 pb-24 max-w-4xl mx-auto">
+      {isLoading && <Loader />}
+      <main className="pt-8 pb-24 max-w-4xl mx-auto px-4">
         {error && (
             <div className="m-4 p-4 bg-red-100 border-l-4 border-red-400 text-red-700 rounded-lg text-center" role="alert">
                 <p>{error}</p>

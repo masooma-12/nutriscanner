@@ -34,6 +34,28 @@
     .view-fade-in {
       animation: fadeIn 0.4s ease-in-out forwards;
     }
+    @keyframes pulse-luv {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.7);
+      }
+      70% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 15px rgba(236, 72, 153, 0);
+      }
+    }
+    .animate-pulse-luv {
+        animation: pulse-luv 2s infinite;
+    }
+
+    @keyframes background-pan {
+      0% {
+        background-position: 0% center;
+      }
+      100% {
+        background-position: -200% center;
+      }
+    }
   </style>
   <script type="importmap">
 {

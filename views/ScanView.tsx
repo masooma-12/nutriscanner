@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { AnalysisResult } from '../types';
-import { CameraIcon, UploadIcon } from '../components/IconComponents';
+import { CameraIcon, SparklesIcon } from '../components/IconComponents';
 
 const toBase64 = (file: File): Promise<string> => new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -13,10 +13,9 @@ interface ScanViewProps {
     setAnalysisResult: (result: AnalysisResult | null) => void;
     setIsLoading: (loading: boolean) => void;
     setError: (error: string | null) => void;
-    isLoading: boolean;
 }
 
-const ScanView: React.FC<ScanViewProps> = ({ setAnalysisResult, setIsLoading, setError, isLoading }) => {
+const ScanView: React.FC<ScanViewProps> = ({ setAnalysisResult, setIsLoading, setError }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isCameraOn, setIsCameraOn] = useState(false);
@@ -90,41 +89,45 @@ const ScanView: React.FC<ScanViewProps> = ({ setAnalysisResult, setIsLoading, se
 
     return (
         <div className="flex flex-col items-center justify-center text-center p-4">
-            <h1 className="text-4xl font-bold text-pink-500">NutriScan</h1>
-            <p className="text-gray-600 mt-2 mb-6">Scan a food packet to check what’s really inside 💡</p>
-            
-            <div className="w-full max-w-md aspect-video bg-gray-200/50 rounded-lg flex items-center justify-center overflow-hidden border-2 border-dashed border-gray-300 relative">
+            <style>{`.animate-gradient-pan { background-size: 200%; animation: background-pan 3s linear infinite; }`}</style>
+            <h1 className="text-6xl font-bold bg-gradient-to-r from-rose-400 via-pink-500 to-purple-600 text-transparent bg-clip-text animate-gradient-pan mb-2">
+                NutriScan
+            </h1>
+            <p className="text-gray-600 text-lg mt-2 mb-8">
+                Hello beautiful! Let's discover the goodness in your food. 💖
+            </p>
+
+            <div className="w-full max-w-md aspect-video bg-rose-50/50 rounded-2xl flex items-center justify-center overflow-hidden border-2 border-dashed border-pink-200 relative shadow-inner">
                 <video ref={videoRef} className={`w-full h-full object-cover transition-opacity duration-300 ${isCameraOn ? 'opacity-100' : 'opacity-0'}`} playsInline />
                 {!isCameraOn && (
-                     <div className="absolute text-center text-gray-500">
-                        <CameraIcon className="w-12 h-12 mx-auto mb-2 text-gray-400"/>
-                        <p>Your camera view will appear here</p>
+                     <div className="absolute text-center text-gray-500 p-6">
+                        <SparklesIcon className="w-16 h-16 mx-auto mb-4 text-pink-300" />
+                        <h3 className="font-semibold text-lg text-gray-600">Ready to Scan?</h3>
+                        <p>Point your camera at a food label to begin!</p>
                     </div>
                 )}
             </div>
-
-            {isLoading && (
-                 <div className="mt-6 flex items-center space-x-2 text-pink-500">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500"></div>
-                    <span>Analyzing with Luvable... 💖</span>
-                </div>
-            )}
             
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-md">
-                <button onClick={() => fileInputRef.current?.click()} className="w-full flex items-center justify-center gap-2 bg-white text-pink-500 font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-pink-50 transition-transform transform hover:scale-105 active:scale-95">
-                    <UploadIcon className="w-6 h-6" /> Upload Label
-                </button>
-                <input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileSelect} className="hidden" />
-                
-                {isCameraOn ? (
-                     <button onClick={capturePhoto} className="w-full flex items-center justify-center gap-2 bg-pink-500 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-pink-600 transition-transform transform hover:scale-105 active:scale-95">
-                        <CameraIcon className="w-6 h-6" /> Capture
+            <div className="mt-8 flex flex-col items-center gap-4 w-full max-w-md">
+                 {isCameraOn ? (
+                     <button onClick={capturePhoto} className="w-24 h-24 flex items-center justify-center bg-pink-500 text-white rounded-full shadow-lg transition-transform transform hover:scale-110 active:scale-95 animate-pulse-luv">
+                        <CameraIcon className="w-10 h-10" />
                     </button>
                 ) : (
-                     <button onClick={startCamera} className="w-full flex items-center justify-center gap-2 bg-white text-pink-500 font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-pink-50 transition-transform transform hover:scale-105 active:scale-95">
-                        <CameraIcon className="w-6 h-6" /> Use Camera
+                     <button onClick={startCamera} className="w-full flex items-center justify-center gap-3 bg-pink-500 text-white font-bold py-4 px-6 rounded-xl shadow-lg hover:bg-pink-600 transition-all transform hover:scale-105 active:scale-95 animate-pulse-luv">
+                        <CameraIcon className="w-7 h-7" /> Use Camera
                     </button>
                 )}
+                
+                {!isCameraOn && (
+                    <button 
+                        onClick={() => fileInputRef.current?.click()} 
+                        className="text-pink-500 font-semibold hover:underline transition-colors"
+                    >
+                        or upload a photo
+                    </button>
+                )}
+                <input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileSelect} className="hidden" />
             </div>
         </div>
     );
